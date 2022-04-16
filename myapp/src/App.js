@@ -1,11 +1,19 @@
 import './App.scss';
 import React, {useEffect, useState} from "react";
 import {AUTHOR} from "./constants/common";
+import TextField from '@mui/material/TextField';
+import {Fab, useTheme} from '@mui/material';
+import {Send} from '@mui/icons-material';
+import Messages from "./components/Messages";
+import ChatList from "./components/ChatList";
 
 function App() {
+	const theme = useTheme();
 	const [messageList, setMessageList] = useState([]);
 	const [value, setValue] = useState('')
-	// console.log('message ------------');
+	// const onKeyDown = (event) => {
+	// 	setValue(event.target.value);
+	// }
 	
 	const handleChange = (event) => {
 		setValue(event.target.value);
@@ -14,13 +22,14 @@ function App() {
 	const handleClick = () => {
 		if (value !== ''){
 			const newMessage = { text: value, author: AUTHOR.me };
-			setMessageList([...messageList, newMessage]);
+			setMessageList([...(messageList || []), newMessage]);
+			setValue('');
 		}
 	}
 	
 	useEffect(() => {
 		let timerId;
-		if (messageList.length > 0 && messageList[messageList.length - 1].author !== AUTHOR.bot) {
+		if (messageList?.length > 0 && messageList[messageList.length - 1].author !== AUTHOR.bot) {
 			timerId = setInterval(() => {
 				setMessageList([...messageList, newMessage]);
 			}, 1500);
@@ -34,23 +43,28 @@ function App() {
 	return (
 		<div className='App'>
 			<header className='App-header'>
+				<h3>Список chats: </h3>
+				<ChatList/>
 				<h3>Список сообщений: </h3>
 				<br/>
-				{messageList.map(message => (
-					<div>
-						<p>{message.text}</p>
-						<sup>{message.author}</sup>
-					</div>
-					)
-				)} {/*render of map*/}
-				<div>
-					<input
+				<Messages messages={messageList} />
+				<div className={'controlPanel'}>
+					<TextField
 						placeholder={'Введите сообщение'}
 					   	type="text"
 					   	value={value}
 					   	onChange={handleChange}
+						autoFocus
 					/>
-					<button onClick={handleClick}>Отправить</button>
+					<Fab
+						style={{
+							backgroundColor: theme.palette.primary.main
+						}}
+						onClick={handleClick}
+						color="primary"
+						aria-label="add">
+						<Send />
+					</Fab>
 				</div>
 			</header>
 		</div>
